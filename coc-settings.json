@@ -1,0 +1,16 @@
+{
+    "coc.preferences.formatOnSaveFiletypes": ["python", "java", "clang"],
+
+    //python config
+    "python.linting.enabled": true,
+    "python.linting.pylamaEnabled": true,
+
+    //java config
+    "java.referencesCodeLens.enabled": true,
+    "java.import.maven.enabled": true,
+    "java.foldingRange.enabled": true,
+
+    //cpp config
+    "clangd.symbolInfo": true,
+    "clangd.switchSourceHeader": true
+}
