@@ -1,21 +1,28 @@
 syntax on
 set number
 set relativenumber
-set nocompatible "required"
+set nocompatible    "required for Vundle"
 set expandtab
 set smartindent
 set tabstop=4 softtabstop=4 shiftwidth=4
 setlocal spell
 set spelllang=en_us
-set listchars=trail:·
+set listchars=trail:·  "add dot for white spaces"
 set title titlestring=
 set list
 set noswapfile
 set noerrorbells
+set shell=/bin/bash
+set laststatus=2        "needed for light line"
 set wildignore+=*/vendor,*/node_modules/*,_site,*/__pycache__,*/venv/*,*/target/*,*/.vim$,\~$,*/.log,*/.aux,*/.cls,*/.aux,*/.bbl,*/.blg,*/.fls,*/.fdb*/,*/.toc,*/.out,*/.glo,*/.log,*/.ist,*/.fdb_latexmk,*/tmp/*,*.so,*.swp,*.zip
 filetype off
 
-" Vundle setup and plugins
+" shortcut for navigating in different directories
+let $RC="$HOME/.vim/vimrc"
+let $WORK="$HOME/Desktop/2020-2021"
+let $N="$HOME/Desktop/Notes"
+
+" Installs Vundle if not already done
 let need_to_install_plugins=0
 if empty(system("grep lazy_load ~/.vim/bundle/vundle/autoload/vundle.vim"))
     echo "Installing Vundle..."
@@ -25,8 +32,12 @@ if empty(system("grep lazy_load ~/.vim/bundle/vundle/autoload/vundle.vim"))
     silent !git clone https://github.com/gmarik/vundle ~/.vim/bundle/vundle
     let need_to_install_plugins=1
 endif
+
+" add run time path
 set rtp+=~/.vim/bundle/Vundle.vim
 set rtp+=~/.vim/after/plugin/
+
+" All the plugins for vundle begin here
 call vundle#begin()
 
 "let Vundle manage Vundle, required
@@ -66,24 +77,29 @@ Plugin 'neoclide/coc.nvim', {'branch': 'release'}
 " commenting tool
 Plugin 'preservim/nerdcommenter'
 
-" surround
+" surround use cs"' to change from "word" -> 'word'
 Plugin 'tpope/vim-surround'
 
 " window choosing with -
 Plugin 't9md/vim-choosewin'
 
-" auto closing
+" add closing brackets
 Plugin 'Townk/vim-autoclose'
 
 " fzf and Rg and Ag
 Plugin 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plugin 'junegunn/fzf.vim'
 
+" Tagbar <leader>t
 Plugin 'majutsushi/tagbar'
+
+" a minimal line on the bottom
 Plugin 'itchyny/lightline.vim'
 call vundle#end()
+
 filetype plugin indent on
 
+" install the new plugins when you open vim
 if need_to_install_plugins==1
     echo "Installing plugins..."
     silent! PluginInstall
@@ -104,6 +120,7 @@ nnoremap <silent> <leader>f :Files<CR>
 inoremap <C-l> <c-g>u<Esc>[s1z=`]a<c-g>u
 nmap // :BLines<CR>
 nmap ?? :Rg<CR>
+
 nmap <leader>s :%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>
 map <leader>t :TagbarToggle<CR>
 
@@ -124,12 +141,16 @@ let g:choosewin_overlay_enable = 1
         autocmd BufWritepre * %s/\n\+\%$//e
 
 "Use tab for trigger completion with characters ahead and navigate.
-inoremap <silent><expr> <TAB>
+inoremap <silent><expr> <Tab>
       \ pumvisible() ? "\<C-n>" :
       \ <SID>check_back_space() ? "\<TAB>" :
       \ coc#refresh()
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
 
 "===================================================
 " fzf window when searching need to install Ag and Rg and fzf in terminal also
@@ -138,7 +159,7 @@ if executable('rg')
     let g:rg_derive_root='true'
 endif
 
-let g:fzf_layout = {'up':'~70%', 'window': { 'width': 0.8, 'height': 0.8,'yoffset':0.5,'xoffset': 0.5, 'border': 'sharp' } }
+let g:fzf_layout = {'up':'~90%', 'window': { 'width': 0.8, 'height': 0.8,'yoffset':0.5,'xoffset': 0.5, 'border': 'sharp' } }
 
 let $FZF_DEFAULT_OPTS = '--layout=reverse --info=inline'
 let $FZF_DEFAULT_COMMAND = "rg --files --hidden --glob '!.git/**'"
