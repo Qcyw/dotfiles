@@ -1,7 +1,7 @@
 syntax on
 set number
 set relativenumber
-set nocompatible
+set nocompatible "required"
 set expandtab
 set smartindent
 set tabstop=4 softtabstop=4 shiftwidth=4
@@ -11,11 +11,22 @@ set listchars=trail:·
 set title titlestring=
 set list
 set noswapfile
+set noerrorbells
 set wildignore+=*/vendor,*/node_modules/*,_site,*/__pycache__,*/venv/*,*/target/*,*/.vim$,\~$,*/.log,*/.aux,*/.cls,*/.aux,*/.bbl,*/.blg,*/.fls,*/.fdb*/,*/.toc,*/.out,*/.glo,*/.log,*/.ist,*/.fdb_latexmk,*/tmp/*,*.so,*.swp,*.zip
 filetype off
 
 " Vundle setup and plugins
+let need_to_install_plugins=0
+if empty(system("grep lazy_load ~/.vim/bundle/vundle/autoload/vundle.vim"))
+    echo "Installing Vundle..."
+    echo ""
+    silent !mkdir -p ~/.vim/bundle
+    silent !rm -rf ~/.vim/bundle/vundle
+    silent !git clone https://github.com/gmarik/vundle ~/.vim/bundle/vundle
+    let need_to_install_plugins=1
+endif
 set rtp+=~/.vim/bundle/Vundle.vim
+set rtp+=~/.vim/after/plugin/
 call vundle#begin()
 
 "let Vundle manage Vundle, required
@@ -34,7 +45,7 @@ Plugin 'KeitaNakamura/tex-conceal.vim'
 
 "snippets
 Plugin 'SirVer/ultisnips'
-        let g:UltiSnipsExpandTrigger="<tab>"
+        let g:UltiSnipsExpandTrigger="<c-j>"
         let g:UltiSnipsJumpForwardTrigger="<c-b>"
         let g:UltiSnipsJumpBackwardTrigger="<c-z>"
         let g:UltiSnipsEditTrigger="<c-e>"
@@ -55,7 +66,7 @@ Plugin 'neoclide/coc.nvim', {'branch': 'release'}
 " commenting tool
 Plugin 'preservim/nerdcommenter'
 
-" surrond
+" surround
 Plugin 'tpope/vim-surround'
 
 " window choosing with -
@@ -68,9 +79,17 @@ Plugin 'Townk/vim-autoclose'
 Plugin 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plugin 'junegunn/fzf.vim'
 
+Plugin 'majutsushi/tagbar'
+Plugin 'itchyny/lightline.vim'
 call vundle#end()
 filetype plugin indent on
 
+if need_to_install_plugins==1
+    echo "Installing plugins..."
+    silent! PluginInstall
+    echo "Done!"
+    q
+endif
 
 " Mappings
 let mapleader = " "
@@ -79,11 +98,14 @@ nnoremap <leader>j :wincmd j<CR>
 nnoremap <leader>k :wincmd k<CR>
 nnoremap <leader>l :wincmd l<CR>
 nnoremap <leader>pv :wincmd v<bar> :Ex <bar> :vertical resize 30<CR>
-nnoremap <Leader>ps :Rg<space>
-nnoremap <silent> <Leader>+ :vertical resize +5<CR>
-nnoremap <silent> <Leader>- :vertical resize -5<CR>
+nnoremap <silent> <Leader>+ :vertical resize +10<CR>
+nnoremap <silent> <Leader>- :vertical resize -10<CR>
 nnoremap <silent> <leader>f :Files<CR>
 inoremap <C-l> <c-g>u<Esc>[s1z=`]a<c-g>u
+nmap // :BLines<CR>
+nmap ?? :Rg<CR>
+nmap <leader>s :%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>
+map <leader>t :TagbarToggle<CR>
 
 "coc maps
 nmap <silent> gd <Plug>(coc-definition)
@@ -97,7 +119,7 @@ nmap  -  <Plug>(choosewin)
 " show big letters
 let g:choosewin_overlay_enable = 1
 
-" Automatically deletes all trailing whitespace and newlines at end of file on save.
+" Automatically deletes all trailing white space and newlines at end of file on save.
         autocmd BufWritePre * %s/\s\+$//e
         autocmd BufWritepre * %s/\n\+\%$//e
 
@@ -145,7 +167,6 @@ let g:fzf_colors =
 
 let g:fzf_tags_command='ctags -R'
 
-"Get Files
 command! -bang -nargs=? -complete=dir Files
             \ call fzf#vim#files(<q-args>, fzf#vim#with_preview({'options': ['--layout=reverse', '--info=inline']}), <bang>0)
 
@@ -160,3 +181,21 @@ function! RipgrepFzf(query, fullscreen)
 endfunction
 
 command! -nargs=* -bang RF call RipgrepFzf(<q-args>, <bang>0)
+
+
+"lightline
+let g:lightline = {
+  \ 'colorscheme': 'darcula',
+  \ 'active': {
+  \   'right': [['lineinfo'], ['fileformat', 'filetype']]
+  \ },
+  \ 'component_function': {
+  \   'filename': 'LightLineFilename'
+  \ },
+  \ 'component': {
+  \   'lineinfo': "[%l:%-v] [%{printf('%03d/%03d',line('.'),line('$'))}]",
+  \ }
+  \ }
+function! LightLineFilename()
+  return expand('%')
+endfunction
